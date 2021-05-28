@@ -4,6 +4,7 @@
 
   var htmlCanvas = window.document.querySelector("canvas");
   var ctx = htmlCanvas.getContext("2d");
+  var ship = window.document.querySelector("#ship");
 
   var screenWidth = window.innerWidth;
   var screenHeight = window.innerHeight;
@@ -14,7 +15,13 @@
   var waveLength = 0;
   var waves = {};
 
+  var shipComputed = {
+    top: screenHeight / 2,
+    left: -10,
+    widthScreenWidthPercent: 0.07,
+  };
   var moveWavesId;
+  var moveShipId;
 
   function value(x, width, numberOfWaves) {
     x = ((x * numberOfWaves) / width) * 2 * Math.PI;
@@ -55,6 +62,30 @@
     requestAnimationFrame(draw);
   }
 
+  function moveShip() {
+    var y1 = waves[shipComputed.left];
+    var y2 = waves[shipComputed.left + 1];
+
+    shipComputed.top = y1;
+    shipComputed.left += 1;
+
+    if (shipComputed.left > screenWidth - 1) {
+      shipComputed.left = -10;
+    }
+
+    shipComputed.angle = -Math.atan(y1 - y2) + "rad";
+
+    ship.style.transform = "rotate(" + shipComputed.angle + ")";
+    ship.style.left =
+      shipComputed.left -
+      (screenWidth * shipComputed.widthScreenWidthPercent) / 2 +
+      "px";
+    ship.style.top =
+      shipComputed.top -
+      screenWidth * shipComputed.widthScreenWidthPercent +
+      "px";
+  }
+
   function initializeWaves() {
     var randomWaves1 = randomIntFromInterval(4, 5);
     var randomWaves2 = randomIntFromInterval(2, 3);
@@ -90,6 +121,9 @@
   function startLoop() {
     clearInterval(moveWavesId);
     moveWavesId = setInterval(moveWaves, 8000 / screenWidth);
+
+    clearInterval(moveShipId);
+    moveShipId = setInterval(moveShip, 10000 / screenWidth);
   }
 
   function recalculateCanvas() {
